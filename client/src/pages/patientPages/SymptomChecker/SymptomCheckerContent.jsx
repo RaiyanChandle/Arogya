@@ -17,6 +17,7 @@ import { useUser } from "@clerk/clerk-react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import AiHealthInsight from "../../../components/patient/AiHealthInsight";
+import HaveCall from "../../../components/patient/HaveCall";
 
 const COMMON_SYMPTOMS = [
     "Fever",
@@ -203,7 +204,7 @@ const SymptomCheckerContent = () => {
     };
 
     return (
-        <div className="w-full max-w-8xl mx-auto ">
+        <div className="relative w-full max-w-8xl mx-auto ">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Input Card */}
                 <div className="lg:col-span-2 bg-[var(--color-light-surface)] dark:bg-[var(--color-dark-bg)] rounded-2xl shadow p-5">
@@ -345,6 +346,7 @@ const SymptomCheckerContent = () => {
                     </div>
                 </div>
             </div>
+            <HaveCall />
         </div>
     );
 };

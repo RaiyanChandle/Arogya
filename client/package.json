@@ -13,6 +13,7 @@
     "@clerk/clerk-react": "^5.46.0",
     "@headlessui/react": "^2.2.7",
     "@tailwindcss/vite": "^4.1.12",
+    "@vapi-ai/web": "^2.5.2",
     "@zegocloud/zego-uikit-prebuilt": "^2.17.0",
     "axios": "^1.11.0",
     "clsx": "^2.1.1",
