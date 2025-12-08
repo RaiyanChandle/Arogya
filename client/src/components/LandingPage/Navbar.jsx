@@ -21,8 +21,7 @@ import {
     ChevronDown,
     Phone,
     PlayCircle,
-    Moon,
-    Sun,
+    Eye,
     LayoutDashboard,
 } from "lucide-react";
 import { useTheme } from "../../context/ThemeProvider";
@@ -109,6 +108,20 @@ export default function Navbar() {
     const handleDashboardClick = () => {
         const route = getDashboardRoute();
         navigate(route);
+    };
+
+    const toggleColorBlindTheme = () => {
+        setTheme(theme === "colorblind" ? "light" : "colorblind");
+    };
+
+    const cycleTheme = () => {
+        if (theme === "light") {
+            setTheme("dark");
+        } else if (theme === "dark") {
+            setTheme("colorblind");
+        } else {
+            setTheme("light");
+        }
     };
 
     return (
@@ -231,11 +244,9 @@ export default function Navbar() {
                     </div>
                     <div className="flex items-center gap-3">
                         <button
-                            onClick={() =>
-                                setTheme(theme === "dark" ? "light" : "dark")
-                            }
+                            onClick={toggleColorBlindTheme}
                             className="cursor-pointer text-light-primary-text dark:text-dark-primary-text">
-                            {theme === "dark" ? <Moon /> : <Sun />}
+                            <Eye />
                         </button>
                         <GoogleTranslater />
                     </div>
@@ -307,21 +318,16 @@ export default function Navbar() {
                             </div>
                             <div className="py-6 flex flex-col gap-3">
                                 <button
-                                    onClick={() =>
-                                        setTheme(
-                                            theme === "dark" ? "light" : "dark"
-                                        )
-                                    }
+                                    onClick={toggleColorBlindTheme}
                                     className="cursor-pointer text-light-primary-text dark:text-dark-primary-text">
-                                    {theme === "dark" ? (
-                                        <div className="flex gap-2">
-                                            <Moon /> <p>Dark Mode</p>
-                                        </div>
-                                    ) : (
-                                        <div className="flex gap-2">
-                                            <Sun /> <p>Light Mode</p>
-                                        </div>
-                                    )}
+                                    <div className="flex gap-2 items-center">
+                                        <Eye />
+                                        <p>
+                                            {theme === "colorblind"
+                                                ? "Color Blind Mode"
+                                                : "Normal Mode"}
+                                        </p>
+                                    </div>
                                 </button>
                                 <div className="max-w-[280px]">
                                     <GoogleTranslater />
