@@ -4,8 +4,9 @@ import {
     PanelLeftOpen,
     ChartColumnIncreasing,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import VoiceNavigator from "../pages/patientPages/voice navigator/VoiceNavigator";
 
 const Sidebar = ({ tabs }) => {
     const { user } = useUser();
@@ -14,8 +15,19 @@ const Sidebar = ({ tabs }) => {
         const saved = localStorage.getItem("sidebarCollapsed");
         return saved ? JSON.parse(saved) : false;
     });
+    const [voiceEnabled, setVoiceEnabled] = useState(() => {
+        if (typeof window === "undefined") return false;
+        try {
+            const saved = localStorage.getItem("patientVoiceNavigatorEnabled");
+            return saved ? JSON.parse(saved) : false;
+        } catch {
+            return false;
+        }
+    });
     const navigate = useNavigate();
     const location = useLocation();
+
+    const isPatientRoute = location.pathname.startsWith("/patient/");
 
     // Update localStorage whenever isCollapsed changes
     const handleCollapse = () => {
@@ -23,6 +35,17 @@ const Sidebar = ({ tabs }) => {
         setIsCollapsed(newState);
         localStorage.setItem("sidebarCollapsed", JSON.stringify(newState));
     };
+
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        try {
+            localStorage.setItem(
+                "patientVoiceNavigatorEnabled",
+                JSON.stringify(voiceEnabled)
+            );
+        } catch {
+        }
+    }, [voiceEnabled]);
 
     const getActiveTab = () => {
         return (
@@ -33,45 +56,40 @@ const Sidebar = ({ tabs }) => {
 
     return (
         <>
-            {/* Mobile Sidebar Overlay */}
+            {/* ---------------- MOBILE OVERLAY ---------------- */}
             <div
                 className={`
                     fixed inset-0 z-40 bg-black/30 transition-opacity duration-1000
-                    ${
-                        isCollapsed
-                            ? "pointer-events-none opacity-0"
-                            : "pointer-events-auto opacity-100"
+                    ${isCollapsed
+                        ? "pointer-events-none opacity-0"
+                        : "pointer-events-auto opacity-100"
                     }
                     md:hidden
                 `}
                 onClick={handleCollapse}
                 aria-hidden="true"
             />
-            {/* Sidebar */}
+
+            {/* ---------------- SIDEBAR ---------------- */}
             <aside
                 className={`
                     top-0 left-0 h-screen bg-light-surface dark:bg-dark-bg text-light-primary-text dark:text-dark-primary-text flex flex-col px-3 py-5 transition-all duration-300 ease-in-out z-50
-                    ${
-                        isCollapsed
-                            ? "w-0 overflow-hidden md:w-20 md:block hidden md:relative fixed"
-                            : "w-full fixed md:w-60 md:sticky md:left-0"
+                    ${isCollapsed
+                        ? "w-0 overflow-hidden md:w-20 md:block hidden md:relative fixed"
+                        : "w-full fixed md:w-60 md:sticky md:left-0"
                     }
-                `}
-                style={{ maxWidth: isCollapsed ? "200px" : "100vw" }}>
+                `}>
+                {/* Header */}
                 <div
-                    className={`flex px-2 ${
-                        isCollapsed ? "justify-center" : "justify-between"
-                    } items-center w-full`}>
+                    className={`flex px-2 ${isCollapsed ? "justify-center" : "justify-between"
+                        } items-center w-full`}>
                     <div
-                        className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                            isCollapsed ? "w-0 opacity-0" : "w-auto opacity-100"
-                        }`}>
+                        className={`overflow-hidden transition-all duration-300 ease-in-out ${isCollapsed ? "w-0 opacity-0" : "w-auto opacity-100"
+                            }`}>
                         <img
-                            className="text-2xl font-semibold cursor-pointer whitespace-nowrap"
+                            className="cursor-pointer"
                             onClick={() => navigate("/")}
-                            src={
-                                "https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
-                            }
+                            src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
                             height={36}
                             width={36}
                         />
@@ -88,29 +106,29 @@ const Sidebar = ({ tabs }) => {
                 </div>
 
                 <hr className="mt-3 mb-4 border-light-border dark:border-dark-border opacity-20" />
-                <nav className="flex-0">
+
+                {/* --------------- NAV LINKS ---------------- */}
+                <nav>
                     <ul className="space-y-1">
                         {tabs.map((tab) => (
                             <li
                                 key={tab.id}
-                                className={`cursor-pointer px-4 py-3 text-base rounded-lg transition-all duration-300 ease-in-out ${
-                                    getActiveTab() === tab.name
+                                className={`cursor-pointer px-4 py-3 text-base rounded-lg transition-all duration-300 ease-in-out ${getActiveTab() === tab.name
                                         ? "bg-light-primary/15 dark:bg-dark-primary/10 text-light-primary dark:text-dark-primary"
                                         : "hover:bg-light-hover dark:hover:bg-dark-hover"
-                                }`}
+                                    }`}
                                 onClick={() => {
                                     navigate(tab.path);
                                     if (window.innerWidth < 768)
                                         handleCollapse();
                                 }}>
                                 <div className="flex items-center">
-                                    <tab.icon className="shrink-0" size={22} />
+                                    <tab.icon size={22} className="shrink-0" />
                                     <span
-                                        className={`ml-2 transition-all text-sm font-semibold duration-300 ease-in-out ${
-                                            isCollapsed
+                                        className={`ml-2 transition-all text-sm font-semibold duration-300 ease-in-out ${isCollapsed
                                                 ? "w-0 opacity-0"
                                                 : "w-auto opacity-100"
-                                        } whitespace-nowrap overflow-hidden`}>
+                                            } whitespace-nowrap overflow-hidden`}>
                                         {tab.name}
                                     </span>
                                 </div>
@@ -119,12 +137,27 @@ const Sidebar = ({ tabs }) => {
                     </ul>
                 </nav>
 
+                {isPatientRoute && (
+                    <div className={`mt-4 px-3 transition-all duration-300 ease-in-out`}>
+                        <label className={`flex items-center ${isCollapsed ? "justify-center" : "justify-between"} gap-2 text-xs cursor-pointer select-none`}>
+                            {!isCollapsed && (
+                                <span className="font-medium">Voice Navigator</span>
+                            )}
+                            <input
+                                type="checkbox"
+                                checked={voiceEnabled}
+                                onChange={(e) => setVoiceEnabled(e.target.checked)}
+                            />
+                        </label>
+                    </div>
+                )}
+
                 <hr className="mt-3 mb-5 border-light-border dark:border-dark-border opacity-20" />
 
-                <div
-                    className={`flex items-center md:justify-center justify-start px-2 transition-all duration-300 ease-in-out`}>
+                {/* --------------- USER SECTION ---------------- */}
+                <div className="flex items-center md:justify-center justify-start px-2">
                     {!isCollapsed ? (
-                        <div className="flex items-center md:justify-center justify-start gap-2 overflow-hidden">
+                        <div className="flex items-center gap-2">
                             <UserButton
                                 appearance={{
                                     elements: {
@@ -132,31 +165,36 @@ const Sidebar = ({ tabs }) => {
                                     },
                                 }}
                             />
-                            <p className="font-medium md:text-base text-lg whitespace-nowrap transition-all duration-300 ease-in-out">
-                                {user.fullName ||
-                                    user.firstName + user.lastName}
+
+                            <p className="font-medium text-lg whitespace-nowrap">
+                                {user?.fullName ||
+                                    `${user?.firstName || ""} ${
+                                        user?.lastName || ""
+                                    }` ||
+                                    "User"}
                             </p>
                         </div>
                     ) : (
-                        <div className="flex flex-col gap-4">
-                            <UserButton
-                                appearance={{
-                                    elements: {
-                                        userButtonAvatarBox: "w-20 h-20",
-                                    },
-                                }}
-                            />
-                        </div>
+                        <UserButton
+                            appearance={{
+                                elements: {
+                                    userButtonAvatarBox: "w-20 h-20",
+                                },
+                            }}
+                        />
                     )}
                 </div>
             </aside>
-            {/* Mobile Sidebar Toggle Button */}
+
+            {/* ---------------- MOBILE TOGGLE BUTTON ---------------- */}
             <button
                 onClick={handleCollapse}
-                className="rounded-lg absolute hover:bg-light-hover dark:hover:bg-dark-hover px-4 py-6 md:opacity-0 opacity-100 md:hidden transition-all duration-300 ease-in-out z-50"
+                className="rounded-lg absolute hover:bg-light-hover dark:hover:bg-dark-hover 
+                        px-4 py-6 md:hidden z-50"
                 style={{ left: 0, top: 0 }}>
                 {isCollapsed && <PanelLeftOpen size={26} />}
             </button>
+            {isPatientRoute && voiceEnabled && <VoiceNavigator autoStart={true} />}
         </>
     );
 };
